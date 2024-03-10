@@ -1,3 +1,5 @@
+use std::cmp::min;
+
 fn main() {
     use std::io::{stdin, stdout, Write};
     let mut s1: String = String::new();
@@ -24,6 +26,31 @@ fn main() {
     if let Some('\r') = s2.chars().next_back() {
         s2.pop();
     }
-    println!("You typed s1: {}", s1);
-    println!("You typed s2: {}", s2);
+
+    let ld = levenshtein_distance(s1, s2);
+    println!("{}", ld);
+}
+
+fn levenshtein_distance(s1: String, s2: String) -> usize {
+    // DEFINITION
+    // lev(a,b)
+    // = |a| if |b| == 0,
+    // = |b| if |a| == 0,
+    // = lev( tail(a), tail(b) ) if head(a) == head(b),
+    // = 1 + min(lev(tail(a), b), lev(a, tail(b)), lev( tail(a), tail(b) )) otherwise
+    if s1.len() == 0 {
+        return s2.len();
+    } else if s2.len() == 0 {
+        return s1.len();
+    } else if s1[..1] == s2[..1] {
+        return levenshtein_distance(s1[1..].to_string(), s2[1..].to_string());
+    } else {
+        return 1 + min(
+            min(
+                levenshtein_distance(s1[1..].to_string(), s2.clone()),
+                levenshtein_distance(s1.clone(), s2[1..].to_string()),
+            ),
+            levenshtein_distance(s1[1..].to_string(), s2[1..].to_string()),
+        );
+    }
 }
